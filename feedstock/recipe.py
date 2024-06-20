@@ -36,14 +36,8 @@ input_urls_a = [
     "gs://cmip6/pgf-debugging/hanging_bug/file_a.nc",
     "gs://cmip6/pgf-debugging/hanging_bug/file_b.nc",
 ]
-input_urls_b = [
-    "gs://cmip6/pgf-debugging/hanging_bug/file_a_huge.nc",
-    "gs://cmip6/pgf-debugging/hanging_bug/file_b_huge.nc",
-]
-
+https://keeper.mpdl.mpg.de/d/87b85dc4d856446a94d2/files/?p=%2FExperiment2-GCBmodel-Reconstruction%2FInput-from-ocean-models%2FNorESM_OC1_2%2Fchl_NorESM_OC1_2_A_gr_1970_2022.nc&dl=1
 pattern_a = pattern_from_file_sequence(input_urls_a, concat_dim="time")
-pattern_b = pattern_from_file_sequence(input_urls_b, concat_dim="time")
-
 
 # small recipe
 small = (
@@ -61,19 +55,4 @@ small = (
     | ConsolidateDimensionCoordinates()
     | ConsolidateMetadata()
     | Copy(target=catalog_store_urls["small"])
-)
-
-# larger recipe
-large = (
-    beam.Create(pattern_b.items())
-    | OpenURLWithFSSpec()
-    | OpenWithXarray()
-    | StoreToZarr(
-        store_name="large.zarr",
-        combine_dims=pattern_b.combine_dim_keys,
-    )
-    | InjectAttrs()
-    | ConsolidateDimensionCoordinates()
-    | ConsolidateMetadata()
-    | Copy(target=catalog_store_urls["large"])
 )
